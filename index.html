@@ -179,7 +179,7 @@
         </div>
 
         <div class="line">
-          <span>Administrasi (0,5%)</span>
+          <span>Biaya wajib dibayarkan (0,6%)</span>
           <span id="tampilAdmin">Rp0</span>
         </div>
 
@@ -215,13 +215,14 @@
     </section>
 
     <p class="note">
-      Biaya administrasi dihitung sebesar 0,6% dari nominal aset
-      yang dimasukkan. Nilai pajak merupakan input pengguna dan
-      harus diverifikasi berdasarkan aturan yang berlaku.
-      Halaman ini menghitung rincian pengajuan, bukan bukti
-      pembayaran, tagihan pajak resmi, atau konfirmasi bahwa
-      penarikan telah disetujui. Data tidak dikirim atau disimpan
-      ke server oleh halaman ini.
+      Biaya wajib dibayarkan dihitung sebesar 0,6% dari nominal aset
+  yang dimasukkan. Nilai pajak merupakan input pengguna dan
+  harus diverifikasi berdasarkan aturan yang berlaku.
+  Biaya ini ditampilkan sebagai pembayaran terpisah dan
+  tidak mengurangi nominal aset. Halaman ini hanya menghitung
+  estimasi biaya, bukan bukti pembayaran, tagihan pajak resmi,
+  atau konfirmasi persetujuan penarikan aset.
+      </p>
     </p>
   </main>
 
@@ -240,10 +241,14 @@
       const aset = Number(document.getElementById("nominal").value) || 0;
       const pajak = Number(document.getElementById("pajak").value) || 0;
 
-      // Rumus administrasi: 0,6% x nominal aset
-      const admin = Math.round(aset * 0.006);
-      const total = admin + pajak;
-      const sisa = aset - total;
+      // Biaya wajib dibayarkan sebesar 0,6% dari nominal aset
+const admin = Math.round(aset * 0.006);
+
+// Total pembayaran termasuk pajak yang diinput
+const total = admin + pajak;
+
+// Biaya dibayar terpisah, bukan dipotong dari aset
+const sisa = aset;
 
       document.getElementById("tampilAset").textContent = rupiah(aset);
       document.getElementById("tampilAdmin").textContent = rupiah(admin);
@@ -283,7 +288,7 @@
         ["Jenis aset", jenis],
         ["Nomor referensi", referensi],
         ["Nominal aset", rupiah(data.aset)],
-        ["Administrasi 0,5%", rupiah(data.admin)],
+        ["Biaya wajib dibayarkan (0,6%)", rupiah(data.admin)],,
         ["Pajak terverifikasi", rupiah(data.pajak)],
         ["Total biaya tercatat", rupiah(data.total)],
         ["Sisa aset setelah biaya", rupiah(data.sisa)],
