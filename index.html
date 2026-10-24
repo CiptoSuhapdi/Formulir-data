@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formulir Pengajuan Penarikan Aset</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px 12px;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .container {
+      max-width: 560px;
+      margin: 20px auto;
+      padding: 24px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 5px 24px #0001;
+    }
+
+    h1 {
+      font-size: 23px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .intro {
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin: 17px 0 7px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font: inherit;
+      background: white;
+    }
+
+    .section-title {
+      margin-top: 25px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 17px;
+    }
+
+    .summary {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 10px;
+      margin-top: 16px;
+    }
+
+    .line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 13px 0;
+      font-size: 14px;
+    }
+
+    .line span:last-child {
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .total {
+      border-top: 1px solid #cbd5e1;
+      padding-top: 15px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 9px;
+      padding: 14px;
+      margin-top: 18px;
+      background: #1d4ed8;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .secondary {
+      background: #475569;
+    }
+
+    .note {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+
+    #hasil {
+      display: none;
+      margin-top: 24px;
+      padding: 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+    }
+
+    @media print {
+      body { background: white; }
+      .container { box-shadow: none; }
+      form, .no-print { display: none !important; }
+      #hasil { display: block !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>Formulir Data dan Pengajuan Penarikan Aset</h1>
+    <p class="intro">
+      Lengkapi data pemohon dan nominal aset untuk
+      menghitung biaya administrasi.
+    </p>
+
+    <form id="formAset">
+      <h2 class="section-title">Data Pemohon</h2>
+
+      <label for="nama">Nama lengkap</label>
+      <input id="nama" name="nama" required maxlength="100">
+
+      <label for="email">Alamat email</label>
+      <input id="email" name="email" type="email" required>
+
+      <label for="aset">Jenis aset</label>
+      <select id="aset" name="aset" required>
+        <option value="Crypto">Aset kripto</option>
+        <option value="Lainnya">Aset lainnya</option>
+      </select>
+
+      <label for="referensi">Nomor referensi pengajuan</label>
+      <input id="referensi" name="referensi"
+        placeholder="Opsional">
+
+      <h2 class="section-title">Data Penarikan</h2>
+
+      <label for="nominal">Total nominal aset (Rp)</label>
+      <input id="nominal" name="nominal" type="number"
+        min="0" step="1" placeholder="Contoh: 100000000"
+        required>
+
+      <label for="pajak">Pajak yang telah diverifikasi (Rp)</label>
+      <input id="pajak" name="pajak" type="number"
+        min="0" step="1" value="0" required>
+
+      <label for="catatan">Catatan pengajuan</label>
+      <textarea id="catatan" name="catatan" rows="3"
+        placeholder="Catatan tambahan (opsional)"></textarea>
+
+      <h2 class="section-title">Rincian Perhitungan</h2>
+
+      <div class="summary" aria-live="polite">
+        <div class="line">
+          <span>Total aset</span>
+          <span id="tampilAset">Rp0</span>
+        </div>
+
+        <div class="line">
+          <span>Administrasi (0,5%)</span>
+          <span id="tampilAdmin">Rp0</span>
+        </div>
+
+        <div class="line">
+          <span>Pajak terverifikasi</span>
+          <span id="tampilPajak">Rp0</span>
+        </div>
+
+        <div class="line total">
+          <span>Total biaya tercatat</span>
+          <span id="tampilTotal">Rp0</span>
+        </div>
+
+        <div class="line">
+          <span>Sisa aset setelah biaya</span>
+          <span id="tampilSisa">Rp0</span>
+        </div>
+      </div>
+
+      <button type="submit">Buat Ringkasan Pengajuan</button>
+    </form>
+
+    <section id="hasil">
+      <h2>Ringkasan Pengajuan</h2>
+      <div id="detail"></div>
+      <button class="no-print" id="salin" type="button">
+        Salin Ringkasan
+      </button>
+      <button class="secondary no-print"
+        type="button" onclick="window.print()">
+        Cetak / Simpan PDF
+      </button>
+    </section>
+
+    <p class="note">
+      Biaya administrasi dihitung sebesar 0,6% dari nominal aset
+      yang dimasukkan. Nilai pajak merupakan input pengguna dan
+      harus diverifikasi berdasarkan aturan yang berlaku.
+      Halaman ini menghitung rincian pengajuan, bukan bukti
+      pembayaran, tagihan pajak resmi, atau konfirmasi bahwa
+      penarikan telah disetujui. Data tidak dikirim atau disimpan
+      ke server oleh halaman ini.
+    </p>
+  </main>
+
+  <script>
+    const form = document.getElementById("formAset");
+    const rupiah = angka => new Intl.NumberFormat(
+      "id-ID",
+      {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }
+    ).format(angka);
+
+    function hitung() {
+      const aset = Number(document.getElementById("nominal").value) || 0;
+      const pajak = Number(document.getElementById("pajak").value) || 0;
+
+      // Rumus administrasi: 0,6% x nominal aset
+      const admin = Math.round(aset * 0.006);
+      const total = admin + pajak;
+      const sisa = aset - total;
+
+      document.getElementById("tampilAset").textContent = rupiah(aset);
+      document.getElementById("tampilAdmin").textContent = rupiah(admin);
+      document.getElementById("tampilPajak").textContent = rupiah(pajak);
+      document.getElementById("tampilTotal").textContent = rupiah(total);
+      document.getElementById("tampilSisa").textContent = rupiah(sisa);
+
+      return { aset, admin, pajak, total, sisa };
+    }
+
+    document.getElementById("nominal")
+      .addEventListener("input", hitung);
+
+    document.getElementById("pajak")
+      .addEventListener("input", hitung);
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      if (!form.reportValidity()) return;
+
+      const data = hitung();
+      const nama = document.getElementById("nama").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const jenis = document.getElementById("aset").value;
+      const referensi =
+        document.getElementById("referensi").value.trim() || "-";
+      const catatan =
+        document.getElementById("catatan").value.trim() || "-";
+
+      const detail = document.getElementById("detail");
+      detail.replaceChildren();
+
+      const baris = [
+        ["Nama", nama],
+        ["Email", email],
+        ["Jenis aset", jenis],
+        ["Nomor referensi", referensi],
+        ["Nominal aset", rupiah(data.aset)],
+        ["Administrasi 0,5%", rupiah(data.admin)],
+        ["Pajak terverifikasi", rupiah(data.pajak)],
+        ["Total biaya tercatat", rupiah(data.total)],
+        ["Sisa aset setelah biaya", rupiah(data.sisa)],
+        ["Catatan", catatan]
+      ];
+
+      baris.forEach(([label, nilai]) => {
+        const p = document.createElement("p");
+        const strong = document.createElement("strong");
+        strong.textContent = label + ": ";
+        p.append(strong, document.createTextNode(nilai));
+        detail.appendChild(p);
+      });
+
+      document.getElementById("hasil").style.display = "block";
+      document.getElementById("hasil")
+        .scrollIntoView({ behavior: "smooth" });
+    });
+
+    document.getElementById("salin").addEventListener("click",
+      async function() {
+        const teks = document.getElementById("detail").innerText;
+
+        try {
+          await navigator.clipboard.writeText(teks);
+          alert("Ringkasan berhasil disalin.");
+        } catch {
+          alert("Penyalinan otomatis tidak tersedia. Gunakan fitur cetak atau salin teks secara manual.");
+        }
+      });
+
+    hitung();
+  </script>
+</body>
+</html>
